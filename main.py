@@ -114,7 +114,7 @@ def main(page: ft.Page):
     )
 
     background_image = ft.Image(
-        src="/Users/kurmanbek/Desktop/Geeks/Groups_flet/group_53_2_to_do_list/media/image.png",
+        src="media/thumb-1920-1015665.png",
         fit=ft.ImageFit.FILL,
         width=page.width,
         height=page.height
