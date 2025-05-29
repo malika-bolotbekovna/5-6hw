@@ -37,7 +37,6 @@ def get_tasks(filter_type='all'):
 
 
 def add_task_db(task):
-    from datetime import datetime
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -45,10 +44,9 @@ def add_task_db(task):
     conn.commit()
     task_id = cursor.lastrowid
     conn.close()
-    return task_id, created_at
+    return task_id
 
-
-def update_task_db(task_id, new_task, completed=None):
+def update_task_db(task_id, new_task=None, completed=None):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     # cursor.execute(queries.UPDATE_TASK, (new_task, task_id))
@@ -56,6 +54,7 @@ def update_task_db(task_id, new_task, completed=None):
     if new_task is not None:
         cursor.execute("UPDATE tasks SET task = ? WHERE id = ?", (new_task, task_id))
         
+
     if completed is not None:
         cursor.execute("UPDATE tasks SET completed = ? WHERE id = ?", (completed, task_id))
 
@@ -75,4 +74,3 @@ def delete_task_db(task_id):
     cursor = conn.cursor()
     cursor.execute(queries.DELETE_TASK, (task_id,))
     conn.commit()
-    conn.close()
