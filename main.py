@@ -15,17 +15,21 @@ def main(page: ft.Page):
 
     def load_tasks():
         task_list.controls.clear()
-        for task_id, task_text, completed in main_db.get_tasks(filter_type):
-            task_list.controls.append(create_task_row(task_id, task_text, completed))
+        for task_id, task_text, created_at, completed in main_db.get_tasks(filter_type):
+            task_list.controls.append(create_task_row(task_id, task_text, created_at, completed))
+
         page.update() 
 
-    def create_task_row(task_id, task_text, completed):
+    def create_task_row(task_id, task_text, created_at, completed):
         task_field = ft.TextField(value=task_text, expand=True, read_only=True)
 
         task_checkbox = ft.Checkbox(
             value=bool(completed),
             on_change=lambda e: toggle_task(task_id, e.control.value)
         )
+
+        created_label = ft.Text(f"Создано: {created_at}", style=ft.TextThemeStyle.BODY_SMALL, color=ft.Colors.GREY)
+
 
         def enable_edit(e):
             task_field.read_only = False
@@ -37,7 +41,7 @@ def main(page: ft.Page):
 
         return ft.Row([
             task_checkbox,
-            task_field,
+            ft.Column([task_field, created_label], expand=True),
             ft.IconButton(ft.Icons.EDIT, icon_color=ft.Colors.YELLOW_400, on_click=enable_edit),
             ft.IconButton(ft.Icons.SAVE, icon_color=ft.Colors.GREEN_400, on_click=save_task),
             ft.IconButton(ft.Icons.DELETE, icon_color=ft.Colors.RED_400, on_click=lambda e: delete_task(task_id))
@@ -47,7 +51,7 @@ def main(page: ft.Page):
     def add_task(e):
         if task_input.value:
             task_id = main_db.add_task_db(task_input.value)
-            task_list.controls.append(create_task_row(task_id, task_input.value, 0))
+            task_list.controls.append(create_task_row(task_id, task_input.value, "", 0))
             task_input.value = ""
             page.update()
 
