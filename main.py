@@ -15,9 +15,9 @@ def main(page: ft.Page):
 
     def load_tasks():
         task_list.controls.clear()
-        for task_id, task_text, completed in main_db.get_tasks():
+        for task_id, task_text, completed in main_db.get_tasks(filter_type):
             task_list.controls.append(create_task_row(task_id, task_text, completed))
-        page.update()
+        page.update() 
 
     def create_task_row(task_id, task_text, completed):
         task_field = ft.TextField(value=task_text, expand=True, read_only=True)
@@ -47,7 +47,7 @@ def main(page: ft.Page):
     def add_task(e):
         if task_input.value:
             task_id = main_db.add_task_db(task_input.value)
-            task_list.controls.append(create_task_row(task_id, task_input.value, None))
+            task_list.controls.append(create_task_row(task_id, task_input.value, 0))
             task_input.value = ""
             page.update()
 
@@ -65,18 +65,32 @@ def main(page: ft.Page):
         filter_type = filter_value
         load_tasks()
 
-    task_input = ft.TextField(hint_text="Добавьте задачу: ", expand=True, dense=True, on_submit=add_task)
+    def clear_completed(e):
+        main_db.clear_completed_tasks()
+        load_tasks()
 
-    add_button = ft.ElevatedButton("Добавить", on_click=add_task, icon=ft.Icons.ADD, icon_color=ft.Colors.GREEN_400)
+      # Добавляем кнопку очистки
+    clear_completed_button = ft.ElevatedButton(
+        "Очистить выполненные",
+        on_click=clear_completed,
+        icon=ft.Icons.DELETE_FOREVER,
+        icon_color=ft.Colors.RED_400,
+        bgcolor=ft.Colors.GREY_800,
+        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
+    )
 
     filter_buttons = ft.Row(
         controls=[
             ft.ElevatedButton("Все", on_click=lambda e: set_filter('all')),
             ft.ElevatedButton("Завершенные", on_click=lambda e: set_filter('completed')),
-            ft.ElevatedButton("Незавершенные", on_click=lambda e: set_filter('uncompleted'))
+            ft.ElevatedButton("Незавершенные", on_click=lambda e: set_filter('uncompleted')),
+            clear_completed_button
         ],
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN
     )
+    task_input = ft.TextField(hint_text="Добавьте задачу: ", expand=True, dense=True, on_submit=add_task)
+
+    add_button = ft.ElevatedButton("Добавить", on_click=add_task, icon=ft.Icons.ADD, icon_color=ft.Colors.GREEN_400)
 
     # page.add(ft.Column({
     #     ft.Row({task_input, add_button}, alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
